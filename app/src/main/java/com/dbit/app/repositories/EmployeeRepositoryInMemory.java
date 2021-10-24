@@ -15,7 +15,7 @@ public class EmployeeRepositoryInMemory implements EmployeeRepository {
 
     private Map<Integer, Employee> map = new ConcurrentHashMap<>();
 
-    private static EmployeeRepositoryInMemory instance;
+    private static volatile EmployeeRepositoryInMemory instance;
 
     private EmployeeRepositoryInMemory() {
 

@@ -14,6 +14,7 @@
                 <td><c:out value="${employee.name}"/></td>
                 <td><c:out value="${employee.salary}"/></td>
                 <td><c:out value="${empty employee.title ? '---' : employee.title.name}"/></td>
+                <td><c:out value="${empty employee.departments ? '---' : employee.departments}" /></td>
             </tr>
         </c:forEach>
     </table>
