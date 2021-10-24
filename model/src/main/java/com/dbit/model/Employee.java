@@ -30,4 +30,16 @@ public class Employee extends AbstractEntity {
         setSalary(salary);
         return this;
     }
+
+    public Employee withTitle(Title title) {
+        setTitle(title);
+        return this;
+    }
+
+    public Employee addDepartment(Department department) {
+        if (department != null) {
+            departments.add(department);
+        }
+        return this;
+    }
 }

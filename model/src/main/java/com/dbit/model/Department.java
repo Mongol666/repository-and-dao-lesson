@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 public class Department extends AbstractEntity {
     private String name;
-    private List<City> cities = new ArrayList<>();
+    private City city;
     private List<Employee> employees = new ArrayList<>();
 
     public Department withId(Integer id) {
@@ -22,6 +22,11 @@ public class Department extends AbstractEntity {
 
     public Department withName(String name) {
         setName(name);
+        return this;
+    }
+
+    public Department withCity(City city) {
+        setCity(city);
         return this;
     }
 }
