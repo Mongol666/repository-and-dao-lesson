@@ -16,6 +16,7 @@ import java.util.*;
 
 @Slf4j
 public class EmployeeRepositoryInPostgres implements EmployeeRepository {
+
     //language=SQL
     private static final String SELECT_EMPLOYEES_ALL_FIELDS =
             "select " +
@@ -32,6 +33,11 @@ public class EmployeeRepositoryInPostgres implements EmployeeRepository {
                     "on d.id = de.department_id " +
                     "join city c " +
                     "on d.city_id = c.id";
+
+    public static final String E_ID = "e_id";
+    public static final String D_ID = "d_id";
+    public static final String C_ID = "c_id";
+    public static final String T_ID = "t_id";
 
     private final DataSource dataSource;
     private static volatile EmployeeRepositoryInPostgres instance;
@@ -62,34 +68,29 @@ public class EmployeeRepositoryInPostgres implements EmployeeRepository {
            Map<Integer, City> cityMap = new HashMap<>();
            Map<Integer, Title> titleMap = new HashMap<>();
             while (set.next()) {
-                int e_id = set.getInt("e_id");
-                int d_id = set.getInt("d_id");
-                int c_id = set.getInt("c_id");
-                int t_id = set.getInt("t_id");
-
-                titleMap.putIfAbsent(t_id, new Title()
-                        .withId(t_id)
-                        .withName(set.getString("title_name")));
-
-                cityMap.putIfAbsent(c_id, new City()
-                        .withId(c_id)
-                        .withName(set.getString("city_name")));
-
-                departmentMap.putIfAbsent(d_id, new Department()
-                        .withId(d_id)
-                        .withName(set.getString("department_name")));
+                int e_id = set.getInt(E_ID);
+                int d_id = set.getInt(D_ID);
+                int c_id = set.getInt(C_ID);
+                int t_id = set.getInt(T_ID);
 
                 employeeMap.putIfAbsent(e_id, new Employee()
                         .withId(e_id)
                         .withName(set.getString("employee_name"))
-                        .withTitle(titleMap.get(t_id))
+                        .withTitle(putIfAbsentAndReturn(titleMap, t_id,
+                                new Title()
+                                        .withId(t_id)
+                                        .withName(set.getString("title_name"))))
                         .withSalary(set.getInt("salary"))
-                        .addDepartment(departmentMap.get(d_id)));
+                        .addDepartment(putIfAbsentAndReturn(departmentMap, d_id,
+                                new Department()
+                                        .withId(d_id)
+                                        .withName(set.getString("department_name"))
+                                        .withCity(putIfAbsentAndReturn(cityMap, c_id,
+                                                new City()
+                                                        .withId(c_id)
+                                                        .withName(set.getString("city_name")))))));
 
-                cityMap.computeIfPresent(c_id, (id, city) -> city.addDepartment(departmentMap.get(d_id)));
-                departmentMap.computeIfPresent(d_id, (id, department) -> department.withCity(cityMap.get(c_id)));
-
-
+                employeeMap.computeIfPresent(e_id, (id, employee) -> employee.addDepartment(departmentMap.get(d_id)));
             }
        } catch (SQLException e) {
            log.error(e.getMessage(), e);
@@ -111,5 +112,13 @@ public class EmployeeRepositoryInPostgres implements EmployeeRepository {
     @Override
     public Optional<Employee> remove(Employee employee) {
         return Optional.empty();
+    }
+
+    private static <K, V> V putIfAbsentAndReturn(Map<K, V> map, K key, V value) {
+        if (key == null) {
+            return null;
+        }
+        map.putIfAbsent(key, value);
+        return map.get(key);
     }
 }
