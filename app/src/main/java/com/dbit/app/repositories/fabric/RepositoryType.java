@@ -6,7 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum RepositoryType {
-    MEMORY("memory");
+    MEMORY("memory"),
+    POSTGRES("postgres");
 
     private static Map<String, RepositoryType> value2Enum = initValue2Enum();
     private static Map<RepositoryType, String> enum2Value = initEnum2Value();
